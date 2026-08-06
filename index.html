@@ -1,1 +1,660 @@
-<!DOCTYPE html><html><body><h1>AB STOCK IA</h1></body></html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AB STOCK IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #fff;
+            padding: 24px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a3e;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .column-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a3e;
+            margin-bottom: 16px;
+        }
+
+        /* Image Preview */
+        .preview-zone {
+            width: 100%;
+            height: 300px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fafafa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preview-zone:hover {
+            border-color: #1a1a3e;
+            background-color: #f0f0f5;
+        }
+
+        .preview-zone img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .preview-placeholder {
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .button-group.single {
+            grid-template-columns: 1fr;
+        }
+
+        button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #1a1a3e;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #0f0f28;
+            box-shadow: 0 4px 12px rgba(26, 26, 62, 0.2);
+        }
+
+        .btn-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #efefef;
+        }
+
+        .btn-danger {
+            background-color: #fff;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background-color: #fff5f5;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Hidden input */
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Analysis Results */
+        .analysis-results {
+            display: none;
+            gap: 16px;
+        }
+
+        .analysis-results.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-item {
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #1a1a3e;
+            border-radius: 4px;
+        }
+
+        .result-label {
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 16px;
+            color: #1a1a3e;
+            font-weight: 500;
+        }
+
+        .result-value.editable {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .alternatives {
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .alternatives-label {
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .alternatives-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .alternative-item {
+            font-size: 13px;
+            color: #666;
+            padding: 6px 8px;
+            background-color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .alternative-item:hover {
+            background-color: #e8e8f5;
+            color: #1a1a3e;
+        }
+
+        /* Loading spinner */
+        .loader {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1a1a3e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        .loader.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Final image preview */
+        .final-image-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fafafa;
+            border-radius: 8px;
+            min-height: 300px;
+            display: none;
+        }
+
+        .final-image-container.active {
+            display: flex;
+        }
+
+        .final-image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 4px;
+        }
+
+        /* Confidence badge */
+        .confidence {
+            display: inline-block;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .preview-zone {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>AB STOCK IA</h1>
+        <p>Identification et création d'images pour l'inventaire</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Left Column: Photo & Analysis -->
+        <div class="column">
+            <div class="card">
+                <div class="column-title">1. Photographier le produit</div>
+
+                <!-- Preview Zone -->
+                <div class="preview-zone" id="previewZone">
+                    <div class="preview-placeholder">Aucune image choisie</div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button class="btn-primary" id="cameraBtn">Prendre une photo</button>
+                    <button class="btn-primary" id="galleryBtn">Photothèque</button>
+                </div>
+
+                <div class="button-group single">
+                    <button class="btn-primary" id="analyzeBtn" disabled>Analyser le produit</button>
+                </div>
+
+                <div class="button-group single">
+                    <button class="btn-danger" id="clearBtn">Effacer</button>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div class="loader" id="loader"></div>
+
+                <!-- Analysis Results -->
+                <div class="analysis-results" id="analysisResults">
+                    <div class="result-item">
+                        <div class="result-label">Nom du produit</div>
+                        <input type="text" class="result-value editable" id="productName" />
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">Marque</div>
+                        <div class="result-value" id="productBrand"></div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">Modèle ou référence</div>
+                        <div class="result-value" id="productModel"></div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">Catégorie</div>
+                        <div class="result-value" id="productCategory"></div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">Confiance</div>
+                        <div class="result-value"><span class="confidence" id="productConfidence"></span></div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">Description détectée</div>
+                        <div class="result-value" id="productDescription" style="font-size: 14px;"></div>
+                    </div>
+
+                    <div class="alternatives">
+                        <div class="alternatives-label">Propositions alternatives</div>
+                        <div class="alternatives-list" id="alternativesList"></div>
+                    </div>
+
+                    <div class="button-group single">
+                        <button class="btn-primary" id="generateBtn">Créer la photo d'inventaire</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Final Image -->
+        <div class="column">
+            <div class="card">
+                <div class="column-title">2. Image finale</div>
+
+                <!-- Final Image Preview -->
+                <div class="final-image-container" id="finalImageContainer">
+                    <img id="finalImage" />
+                </div>
+
+                <!-- Download Button -->
+                <div class="button-group single" id="downloadGroup" style="display: none;">
+                    <button class="btn-primary" id="downloadBtn">Télécharger le PNG</button>
+                </div>
+
+                <div class="button-group single" id="remakeGroup" style="display: none;">
+                    <button class="btn-secondary" id="remakeBtn">Refaire l'image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden File Inputs -->
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" />
+    <input type="file" id="galleryInput" accept="image/*" />
+
+    <script>
+        // State
+        let currentImage = null;
+        let currentImageData = null;
+        let analysisData = null;
+
+        // DOM Elements
+        const previewZone = document.getElementById('previewZone');
+        const cameraBtn = document.getElementById('cameraBtn');
+        const galleryBtn = document.getElementById('galleryBtn');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const remakeBtn = document.getElementById('remakeBtn');
+        const loader = document.getElementById('loader');
+        const analysisResults = document.getElementById('analysisResults');
+        const finalImageContainer = document.getElementById('finalImageContainer');
+        const finalImage = document.getElementById('finalImage');
+        const downloadGroup = document.getElementById('downloadGroup');
+        const remakeGroup = document.getElementById('remakeGroup');
+        const cameraInput = document.getElementById('cameraInput');
+        const galleryInput = document.getElementById('galleryInput');
+
+        // Demo Data
+        const demoAnalysis = {
+            name: 'Enduit de lissage fin Toupret 15 kg',
+            brand: 'Toupret',
+            model: 'Enduit de lissage fin',
+            category: 'Enduits et préparation des murs',
+            confidence: '92%',
+            description: 'Sac de 15 kg d\'enduit intérieur destiné au lissage fin des murs et plafonds.',
+            alternatives: [
+                'Enduit Toupret lissage fin 15 kg',
+                'Sac d\'enduit de finition Toupret',
+                'Enduit intérieur poudre Toupret'
+            ]
+        };
+
+        // Camera Button
+        cameraBtn.addEventListener('click', () => {
+            cameraInput.click();
+        });
+
+        // Gallery Button
+        galleryBtn.addEventListener('click', () => {
+            galleryInput.click();
+        });
+
+        // File Input Handlers
+        cameraInput.addEventListener('change', handleFileSelect);
+        galleryInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentImageData = e.target.result;
+                    displayImage(currentImageData);
+                    analyzeBtn.disabled = false;
+                    analysisResults.classList.remove('active');
+                    finalImageContainer.classList.remove('active');
+                    downloadGroup.style.display = 'none';
+                    remakeGroup.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+            // Reset input
+            event.target.value = '';
+        }
+
+        function displayImage(imageSrc) {
+            const img = new Image();
+            img.onload = () => {
+                currentImage = img;
+                previewZone.innerHTML = '';
+                previewZone.appendChild(img);
+            };
+            img.src = imageSrc;
+        }
+
+        // Clear Button
+        clearBtn.addEventListener('click', () => {
+            currentImage = null;
+            currentImageData = null;
+            analysisData = null;
+            previewZone.innerHTML = '<div class="preview-placeholder">Aucune image choisie</div>';
+            analyzeBtn.disabled = true;
+            analysisResults.classList.remove('active');
+            finalImageContainer.classList.remove('active');
+            downloadGroup.style.display = 'none';
+            remakeGroup.style.display = 'none';
+        });
+
+        // Analyze Button
+        analyzeBtn.addEventListener('click', () => {
+            loader.classList.add('active');
+            analyzeBtn.disabled = true;
+
+            // Simulate 1 second loading
+            setTimeout(() => {
+                loader.classList.remove('active');
+                analysisData = { ...demoAnalysis };
+                displayAnalysisResults();
+                analyzeBtn.disabled = false;
+            }, 1000);
+        });
+
+        function displayAnalysisResults() {
+            document.getElementById('productName').value = analysisData.name;
+            document.getElementById('productBrand').textContent = analysisData.brand;
+            document.getElementById('productModel').textContent = analysisData.model;
+            document.getElementById('productCategory').textContent = analysisData.category;
+            document.getElementById('productConfidence').textContent = analysisData.confidence;
+            document.getElementById('productDescription').textContent = analysisData.description;
+
+            const alternativesList = document.getElementById('alternativesList');
+            alternativesList.innerHTML = '';
+            analysisData.alternatives.forEach((alt) => {
+                const div = document.createElement('div');
+                div.className = 'alternative-item';
+                div.textContent = alt;
+                div.addEventListener('click', () => {
+                    document.getElementById('productName').value = alt;
+                });
+                alternativesList.appendChild(div);
+            });
+
+            analysisResults.classList.add('active');
+        }
+
+        // Generate Final Image
+        generateBtn.addEventListener('click', () => {
+            if (!currentImage || !analysisData) return;
+
+            const productName = document.getElementById('productName').value;
+            const canvas = document.createElement('canvas');
+            canvas.width = 1200;
+            canvas.height = 1200;
+            const ctx = canvas.getContext('2d');
+
+            // White background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Calculate image dimensions
+            const padding = 60;
+            const textHeight = 150;
+            const imageAreaHeight = canvas.height - textHeight - padding * 2;
+            const maxWidth = canvas.width - padding * 2;
+            const maxHeight = imageAreaHeight;
+
+            let imgWidth = currentImage.width;
+            let imgHeight = currentImage.height;
+            const ratio = imgWidth / imgHeight;
+
+            if (imgWidth > maxWidth) {
+                imgWidth = maxWidth;
+                imgHeight = imgWidth / ratio;
+            }
+            if (imgHeight > maxHeight) {
+                imgHeight = maxHeight;
+                imgWidth = imgHeight * ratio;
+            }
+
+            const imgX = (canvas.width - imgWidth) / 2;
+            const imgY = padding;
+
+            // Draw image
+            ctx.drawImage(currentImage, imgX, imgY, imgWidth, imgHeight);
+
+            // Gray line
+            const lineY = padding + imageAreaHeight + 20;
+            ctx.strokeStyle = '#cccccc';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, lineY);
+            ctx.lineTo(canvas.width - padding, lineY);
+            ctx.stroke();
+
+            // Product name in uppercase
+            ctx.fillStyle = '#1a1a3e';
+            ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const maxTextWidth = canvas.width - padding * 2;
+            const lineHeight = 50;
+            const words = productName.toUpperCase().split(' ');
+            let line = '';
+            let y = lineY + 40;
+
+            words.forEach((word) => {
+                const testLine = line + (line ? ' ' : '') + word;
+                const metrics = ctx.measureText(testLine);
+
+                if (metrics.width > maxTextWidth && line) {
+                    ctx.fillText(line, canvas.width / 2, y);
+                    line = word;
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            });
+
+            if (line) {
+                ctx.fillText(line, canvas.width / 2, y);
+            }
+
+            // Display final image
+            const finalImageData = canvas.toDataURL('image/png');
+            finalImage.src = finalImageData;
+            finalImage.dataset.png = finalImageData;
+            finalImageContainer.classList.add('active');
+            downloadGroup.style.display = 'grid';
+            remakeGroup.style.display = 'grid';
+        });
+
+        // Download Button
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = finalImage.dataset.png;
+            link.download = 'produit-inventaire.png';
+            link.click();
+        });
+
+        // Remake Button
+        remakeBtn.addEventListener('click', () => {
+            finalImageContainer.classList.remove('active');
+            downloadGroup.style.display = 'none';
+            remakeGroup.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
